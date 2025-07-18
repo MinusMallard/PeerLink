@@ -65,7 +65,7 @@ echo "Creating /etc/nginx/sites-available/peerlink..."
 cat <<EOF | sudo tee /etc/nginx/sites-available/peerlink
 server {
     listen 80;
-    server_name _; # Catch-all for HTTP requests
+    server_name rishav.rishavprojects.live; # Catch-all for HTTP requests
 
     # Backend API
     location /api/ {
