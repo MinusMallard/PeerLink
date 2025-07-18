@@ -27,7 +27,7 @@ public class FileController {
         this.fileSharer = new FileSharer();
         this.server = HttpServer.create(new InetSocketAddress(port), 0);
         this.uploadDir = System.getProperty("java.io.tmpdir") + File.separator + "peerlink-uploads";
-        this.executorService = Executors.newFixedThreadPool(10);
+        this.executorService = Executors.newFixedThreadPool(25);
         
         File uploadDirFile = new File(uploadDir);
         if (!uploadDirFile.exists()) {
@@ -242,7 +242,7 @@ public class FileController {
         }
     }
     
-    private class DownloadHandler implements HttpHandler {
+    private static class DownloadHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
             Headers headers = exchange.getResponseHeaders();

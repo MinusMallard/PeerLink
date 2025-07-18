@@ -34,7 +34,7 @@ public class FileSharer {
         }
 
         try (ServerSocket serverSocket = new ServerSocket(port)) {
-            System.out.println("Serving file '" + new File(filePath).getName() + "' on port " + port);
+            System.out.println("Serving file '" + new File(filePath).getName() + " on port " + port);
             Socket clientSocket = serverSocket.accept();
             System.out.println("Client connected: " + clientSocket.getInetAddress());
 
