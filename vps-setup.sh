@@ -124,10 +124,10 @@ CLASSPATH="target/p2p-1.0-SNAPSHOT.jar:$(mvn dependency:build-classpath -Dinclud
 pm2 start --name peerlink-backend java -- -cp "$CLASSPATH" p2p.App
 
 # Start frontend with PM2
-echo "Starting frontend with PM2..."
-cd ui
-pm2 start npm --name peerlink-frontend -- start
-cd ..
+# echo "Starting frontend with PM2..."
+# cd ui
+# pm2 start npm --name peerlink-frontend -- start
+# cd ..
 
 # Save PM2 configuration
 pm2 save
