@@ -215,7 +215,7 @@ echo "Nginx temporary server is running on port 80."
 # --- SSL with Certbot ---
 echo "Setting up SSL with Let's Encrypt..."
 # Certbot will automatically modify the Nginx configuration and reload the service.
-sudo certbot --nginx -d "$DOMAIN" --non-interactive --agree-tos -m your_email@example.com
+sudo certbot --nginx -d "$DOMAIN" --non-interactive --agree-tos -m rishavkumar200423@gmail.com
 
 # --- Nginx Final Configuration ---
 echo "Applying final Nginx configuration..."
