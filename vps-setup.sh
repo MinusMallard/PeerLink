@@ -148,6 +148,10 @@
 # PeerLink VPS Setup Script
 # This script helps set up PeerLink on a fresh Ubuntu/Debian VPS
 # Exit on error
+#!/bin/bash
+# PeerLink VPS Setup Script
+# This script helps set up PeerLink on a fresh Ubuntu/Debian VPS
+# Exit on error
 set -e
 
 echo "=== PeerLink VPS Setup Script ==="
@@ -156,19 +160,16 @@ echo "This script will install Java, Node.js, Nginx, and set up PeerLink."
 # --- Variables ---
 # Replace with your actual domain and repository URL
 DOMAIN="rishav.rishavprojects.live"
+REPO_URL="https://github.com/MinusMallard/PeerLink.git"
+PROJECT_DIR="PeerLink" # Note: Changed to "PeerLink" to match your directory
 
 # --- System Setup ---
 echo "Updating system packages..."
-sudo apt update
-sudo apt upgrade -y
+sudo apt update && sudo apt upgrade -y
 
 echo "Installing required dependencies..."
+# Removed 'npm' from the list as it's included with the Nodesource Node.js package.
 sudo apt install -y openjdk-17-jdk nodejs nginx maven git certbot python3-certbot-nginx
-
-# --- Application Setup ---
-#echo "Cloning repository..."
-#git clone "$REPO_URL" "$PROJECT_DIR"
-#cd "$PROJECT_DIR"
 
 echo "Building Java backend..."
 # Use Maven wrapper if available, or just 'mvn'
@@ -180,25 +181,56 @@ npm install
 npm run build
 cd ..
 
-# --- Nginx Setup ---
-echo "Setting up Nginx..."
+# --- Nginx Setup for Certbot ---
+echo "Setting up temporary Nginx for Certbot domain verification..."
 if [ -e /etc/nginx/sites-enabled/default ]; then
   sudo rm /etc/nginx/sites-enabled/default
   echo "Removed default Nginx site configuration."
 fi
 
-echo "Creating Nginx configuration for $DOMAIN..."
+# Create a temporary Nginx configuration to listen on port 80 only.
+# Certbot needs this to verify domain ownership before it can issue certificates.
 cat <<EOF | sudo tee /etc/nginx/sites-available/peerlink
 server {
     listen 80;
+    listen [::]:80;
     server_name $DOMAIN;
+}
+EOF
 
-    # Redirect to HTTPS
-    return 301 https://$DOMAIN\$request_uri;
+sudo ln -sf /etc/nginx/sites-available/peerlink /etc/nginx/sites-enabled/peerlink
+sudo nginx -t
+
+if [ $? -eq 0 ]; then
+  echo "Nginx temporary configuration test successful."
+else
+  echo "Nginx configuration test failed. Please check the config file."
+  exit 1
+fi
+
+sudo systemctl restart nginx
+echo "Nginx temporary server is running on port 80."
+
+
+# --- SSL with Certbot ---
+echo "Setting up SSL with Let's Encrypt..."
+# Certbot will automatically modify the Nginx configuration and reload the service.
+sudo certbot --nginx -d "$DOMAIN" --non-interactive --agree-tos -m your_email@example.com
+
+# --- Nginx Final Configuration ---
+echo "Applying final Nginx configuration..."
+# This block is now executed AFTER Certbot has run and created the SSL files.
+cat <<EOF | sudo tee /etc/nginx/sites-available/peerlink
+server {
+    listen 80;
+    listen [::]:80;
+    server_name $DOMAIN;
+    return 301 https://\$server_name\$request_uri;
 }
 
 server {
     listen 443 ssl http2;
+    listen [::]:443 ssl http2;
     server_name $DOMAIN;
 
     ssl_certificate /etc/letsencrypt/live/$DOMAIN/fullchain.pem;
@@ -224,27 +256,20 @@ server {
 }
 EOF
 
-sudo ln -sf /etc/nginx/sites-available/peerlink /etc/nginx/sites-enabled/peerlink
 sudo nginx -t
 
 if [ $? -eq 0 ]; then
-  echo "Nginx configuration test successful."
+    echo "Nginx final configuration test successful. Restarting Nginx."
+    sudo systemctl restart nginx
 else
-  echo "Nginx configuration test failed. Please check the config file."
-  exit 1
+    echo "Nginx final configuration test failed. Please check the config file."
+    exit 1
 fi
-
-sudo systemctl restart nginx
-echo "Nginx configured and restarted."
-
-# --- SSL with Certbot ---
-echo "Setting up SSL with Let's Encrypt..."
-sudo certbot --nginx -d "$DOMAIN" --non-interactive --agree-tos -m your_email@example.com
+echo "Nginx configured and restarted successfully."
 
 # --- Process Management with PM2 ---
-echo "Setting up PM2..."
+echo "Installing PM2..."
 sudo npm install -g pm2
-
 echo "Starting backend with PM2..."
 # The correct command for a Spring Boot/Maven app that produces an executable JAR
 JAR_NAME=$(ls target/*.jar | grep -v 'original' | head -n 1)
@@ -252,7 +277,7 @@ pm2 start java --name peerlink-backend -- -jar "$JAR_NAME"
 
 echo "Starting frontend with PM2..."
 # Use a static file server like 'serve' for the frontend build
-npm install -g serve
+sudo npm install -g serve
 pm2 start serve --name peerlink-frontend -- -s ui/build -l 3000
 
 # Save PM2 configuration and enable startup
@@ -261,3 +286,7 @@ pm2 startup
 
 echo "=== Setup Complete ==="
 echo "PeerLink is now running and accessible via https://$DOMAIN"
+
+---
+This video provides a practical guide on how to set up and secure a VPS, which is the exact purpose of the script. [How to Set Up Your Own Secure VPS Server](https://www.youtube.com/watch?v=Q1Y_g0wMwww)
+http://googleusercontent.com/youtube_content/0
