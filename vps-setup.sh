@@ -148,7 +148,11 @@
 # PeerLink VPS Setup Script
 # This script helps set up PeerLink on a fresh Ubuntu/Debian VPS
 # Exit on error
-#!/bin/bash
+#/bin/bash
+# PeerLink VPS Setup Script
+# This script helps set up PeerLink on a fresh Ubuntu/Debian VPS
+# Exit on error
+#/bin/bash
 # PeerLink VPS Setup Script
 # This script helps set up PeerLink on a fresh Ubuntu/Debian VPS
 # Exit on error
@@ -170,6 +174,11 @@ sudo apt update && sudo apt upgrade -y
 echo "Installing required dependencies..."
 # Removed 'npm' from the list as it's included with the Nodesource Node.js package.
 sudo apt install -y openjdk-17-jdk nodejs nginx maven git certbot python3-certbot-nginx
+
+# --- Application Setup ---
+echo "Cloning repository..."
+# Assuming you already cloned the repo based on your input, so we'll just navigate
+cd "$PROJECT_DIR"
 
 echo "Building Java backend..."
 # Use Maven wrapper if available, or just 'mvn'
@@ -211,11 +220,10 @@ fi
 sudo systemctl restart nginx
 echo "Nginx temporary server is running on port 80."
 
-
 # --- SSL with Certbot ---
 echo "Setting up SSL with Let's Encrypt..."
 # Certbot will automatically modify the Nginx configuration and reload the service.
-sudo certbot --nginx -d "$DOMAIN" --non-interactive --agree-tos -m rishavkumar200423@gmail.com
+sudo certbot --nginx -d "$DOMAIN" --non-interactive --agree-tos -m your_email@example.com
 
 # --- Nginx Final Configuration ---
 echo "Applying final Nginx configuration..."
@@ -270,10 +278,11 @@ echo "Nginx configured and restarted successfully."
 # --- Process Management with PM2 ---
 echo "Installing PM2..."
 sudo npm install -g pm2
+
 echo "Starting backend with PM2..."
-# The correct command for a Spring Boot/Maven app that produces an executable JAR
-JAR_NAME=$(ls target/*.jar | grep -v 'original' | head -n 1)
-pm2 start java --name peerlink-backend -- -jar "$JAR_NAME"
+# Find the JAR file in the target directory
+CLASSPATH="target/p2p-1.0-SNAPSHOT.jar:$(mvn dependency:build-classpath -DincludeScope=runtime -Dmdep.outputFile=/dev/stdout -q)"
+pm2 start --name peerlink-backend java -- -cp "$CLASSPATH" p2p.App
 
 echo "Starting frontend with PM2..."
 # Use a static file server like 'serve' for the frontend build
@@ -286,7 +295,3 @@ pm2 startup
 
 echo "=== Setup Complete ==="
 echo "PeerLink is now running and accessible via https://$DOMAIN"
-
----
-This video provides a practical guide on how to set up and secure a VPS, which is the exact purpose of the script. [How to Set Up Your Own Secure VPS Server](https://www.youtube.com/watch?v=Q1Y_g0wMwww)
-http://googleusercontent.com/youtube_content/0
