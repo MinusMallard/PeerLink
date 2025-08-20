@@ -163,7 +163,7 @@ sudo apt update
 sudo apt upgrade -y
 
 echo "Installing required dependencies..."
-sudo apt install -y openjdk-17-jdk nodejs npm nginx maven git certbot python3-certbot-nginx
+sudo apt install -y openjdk-17-jdk nodejs nginx maven git certbot python3-certbot-nginx
 
 # --- Application Setup ---
 #echo "Cloning repository..."
