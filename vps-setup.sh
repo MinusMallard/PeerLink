@@ -281,8 +281,10 @@ pm2 start --name peerlink-backend java -- -cp "$CLASSPATH" p2p.App
 
 echo "Starting frontend with PM2..."
 # Use a static file server like 'serve' for the frontend build
-sudo npm install -g serve
-pm2 start serve --name peerlink-frontend -- -s ui/build -l 3000
+
+cd ui
+pm2 start npm --name peerlink-frontend -- start
+cd ..
 
 # Save PM2 configuration and enable startup
 pm2 save
