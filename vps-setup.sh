@@ -175,11 +175,6 @@ echo "Installing required dependencies..."
 # Removed 'npm' from the list as it's included with the Nodesource Node.js package.
 sudo apt install -y openjdk-17-jdk nodejs nginx maven git certbot python3-certbot-nginx
 
-# --- Application Setup ---
-echo "Cloning repository..."
-# Assuming you already cloned the repo based on your input, so we'll just navigate
-cd "$PROJECT_DIR"
-
 echo "Building Java backend..."
 # Use Maven wrapper if available, or just 'mvn'
 mvn clean package
