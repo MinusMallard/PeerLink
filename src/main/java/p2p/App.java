@@ -10,7 +10,7 @@ public class App {
     public static void main(String[] args) {
         try {
             // Start the API server on port 8080
-            FileController fileController = new FileController(8080);
+            FileController fileController = new FileController(9090);
             fileController.start();
             
             System.out.println("PeerLink server started on port 8080");

@@ -218,7 +218,7 @@ echo "Nginx temporary server is running on port 80."
 # --- SSL with Certbot ---
 echo "Setting up SSL with Let's Encrypt..."
 # Certbot will automatically modify the Nginx configuration and reload the service.
-sudo certbot --nginx -d "$DOMAIN" --non-interactive --agree-tos -m your_email@example.com
+sudo certbot --nginx -d "$DOMAIN" --non-interactive --agree-tos -m rishavkumar200423@example.com
 
 # --- Nginx Final Configuration ---
 echo "Applying final Nginx configuration..."
@@ -241,7 +241,7 @@ server {
 
     # Backend API
     location /api/ {
-        proxy_pass http://localhost:8080/;
+        proxy_pass http://localhost:9090/;
         proxy_http_version 1.1;
         proxy_set_header Upgrade \$http_upgrade;
         proxy_set_header Connection 'upgrade';
